@@ -1,0 +1,121 @@
+# Perfil "Front-end React (TypeScript)" da biblioteca do Sentinela.
+# Importe em Padrões → Importar YAML e ajuste ao seu time.
+name: Front-end React (TypeScript)
+description: SPAs em React + TypeScript.
+instructions: Componentes de tela em pages/, componentes reutilizáveis em components/, acesso à API só
+  pelo cliente em api/ (hooks de consulta). Estado do servidor em react-query.
+path_globs:
+- '**/*.{ts,tsx,js,jsx}'
+- '**/*.css'
+- package.json
+rules:
+- code: SEC-001
+  title: Segredo ou credencial no código
+  category: security
+  severity: blocker
+  kind: pattern
+  instruction: 'Credenciais nunca ficam no código: use o cofre de segredos ou variáveis de ambiente injetadas
+    na implantação.'
+  pattern: (?i)(password|passwd|senha|secret|api[_-]?key|access[_-]?key|private[_-]?key|token|client[_-]?secret)[a-z0-9_]*['\"]?\s*[:=]\s*['\"][^'\"\s]{8,}['\"]
+  exclude_paths:
+  - '**/tests/**'
+  - '**/test/**'
+  - '**/__tests__/**'
+  - '**/*.test.*'
+  - '**/*.spec.*'
+  - '**/test_*.py'
+  - '**/*_test.py'
+  - '**/*Test.java'
+  suggestion: Remova o valor, revogue a credencial exposta e leia-a de uma variável de ambiente ou do
+    cofre.
+- code: SEC-003
+  title: Dado pessoal ou sensível em log
+  category: security
+  severity: high
+  kind: ai
+  instruction: Logs, mensagens de erro e respostas não podem expor senhas, tokens, documentos (CPF/CNPJ),
+    cartões, dados bancários ou dados pessoais completos. Verifique chamadas de log e exceções adicionadas.
+- code: SEC-004
+  title: Validação da entrada externa
+  category: security
+  severity: high
+  kind: ai
+  instruction: Todo dado vindo de fora (requisição HTTP, fila, arquivo, parâmetro de linha de comando)
+    deve ser validado por tipo, tamanho e formato antes de ser usado, com um schema explícito.
+- code: WEB-001
+  title: HTML injetado sem sanitização
+  category: security
+  severity: high
+  kind: ai
+  instruction: 'dangerouslySetInnerHTML, innerHTML ou v-html só com conteúdo sanitizado (ex.: DOMPurify)
+    e nunca com dado vindo do usuário sem tratamento.'
+  paths:
+  - '**/*.{ts,tsx,js,jsx}'
+- code: WEB-002
+  title: Token em armazenamento do navegador
+  category: security
+  severity: high
+  kind: ai
+  instruction: Tokens de acesso e dados sensíveis não vão para localStorage/sessionStorage/cookies sem
+    httpOnly.
+  paths:
+  - '**/*.{ts,tsx,js,jsx}'
+- code: WEB-010
+  title: Chamada HTTP fora da camada de API
+  category: architecture
+  severity: medium
+  kind: ai
+  instruction: 'Componentes não chamam fetch/axios diretamente: usam o cliente/hook da camada de API do
+    projeto.'
+  paths:
+  - '**/*.{ts,tsx,js,jsx}'
+- code: WEB-011
+  title: Acessibilidade básica
+  category: standards
+  severity: medium
+  kind: ai
+  instruction: Imagens com alt, botões e ícones clicáveis com rótulo acessível, campos de formulário com
+    label associado e nada clicável que não seja botão ou link.
+  paths:
+  - '**/*.{tsx,jsx}'
+- code: TS-001
+  title: console.log esquecido
+  category: standards
+  severity: low
+  kind: pattern
+  instruction: Remova logs de depuração antes do merge.
+  pattern: \bconsole\.(log|debug)\(
+  paths:
+  - '**/*.{ts,tsx,js,jsx}'
+  exclude_paths:
+  - '**/tests/**'
+  - '**/test/**'
+  - '**/__tests__/**'
+  - '**/*.test.*'
+  - '**/*.spec.*'
+  - '**/test_*.py'
+  - '**/*_test.py'
+  - '**/*Test.java'
+- code: TS-002
+  title: Uso de any
+  category: standards
+  severity: low
+  kind: pattern
+  instruction: 'Evite any: tipe a estrutura ou use unknown com validação.'
+  pattern: :\s*any\b|\bas any\b|<any>
+  paths:
+  - '**/*.{ts,tsx}'
+- code: EST-001
+  title: Responsabilidade única
+  category: structure
+  severity: low
+  kind: ai
+  instruction: Funções e classes novas devem ter uma responsabilidade clara. Aponte funções adicionadas
+    com mais de ~60 linhas ou que misturam I/O, regra de negócio e formatação.
+- code: TST-001
+  title: Mudança de comportamento com teste
+  category: tests
+  severity: medium
+  kind: ai
+  instruction: Toda regra de negócio nova ou alterada precisa de teste automatizado no mesmo PR. Aponte
+    quando o PR muda comportamento em código de produção e não adiciona nem altera testes correspondentes.

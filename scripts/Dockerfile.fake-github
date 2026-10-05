@@ -1,0 +1,14 @@
+# GitHub simulado, só para a demonstração e testes (perfil "demo" do compose).
+# Build a partir da raiz:  docker build -f scripts/Dockerfile.fake-github .
+FROM python:3.12-slim-bookworm
+RUN apt-get update && apt-get install -y --no-install-recommends git \
+    && rm -rf /var/lib/apt/lists/* \
+    && pip install --no-cache-dir "fastapi>=0.115" "uvicorn>=0.32" "httpx>=0.28" \
+    && useradd --uid 10001 --create-home fake \
+    && mkdir -p /var/lib/fake-github && chown fake /var/lib/fake-github
+COPY scripts/fake_github.py /app/fake_github.py
+ENV FAKE_GITHUB_GIT_ROOT=/var/lib/fake-github PYTHONUNBUFFERED=1
+WORKDIR /app
+USER fake
+EXPOSE 9000
+CMD ["uvicorn", "fake_github:app", "--host", "0.0.0.0", "--port", "9000", "--log-level", "warning"]

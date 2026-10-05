@@ -1,0 +1,29 @@
+[project]
+name = "sentinela-api"
+version = "0.1.0"
+description = "API do Sentinela: padrões por tipo de implementação, revisões, gate de merge e integrações GitHub/GitLab"
+requires-python = ">=3.12"
+dependencies = [
+    "sentinela-core",
+    "fastapi>=0.115",
+    "uvicorn[standard]>=0.32",
+    "sqlalchemy[asyncio]>=2.0.36",
+    "asyncpg>=0.30",
+    "alembic>=1.14",
+    "pydantic-settings>=2.6",
+    "pyjwt[crypto]>=2.10",
+    "cryptography>=43",
+    "hvac>=2.3",
+    "redis>=5.2",
+    "httpx>=0.28",
+]
+
+[project.scripts]
+sentinela-api = "sentinela_api.main:run"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/sentinela_api"]

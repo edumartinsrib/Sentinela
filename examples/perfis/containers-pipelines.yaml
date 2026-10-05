@@ -1,0 +1,79 @@
+# Perfil "Containers e pipelines" da biblioteca do Sentinela.
+# Importe em Padrões → Importar YAML e ajuste ao seu time.
+name: Containers e pipelines
+description: Dockerfiles e pipelines de CI/CD (GitHub Actions, GitLab CI).
+instructions: Imagens a partir das bases aprovadas, usuário sem privilégios, segredos só de variáveis
+  protegidas.
+path_globs:
+- '**/Dockerfile*'
+- '**/*.dockerfile'
+- .github/workflows/**
+- '**/.gitlab-ci.yml'
+rules:
+- code: SEC-001
+  title: Segredo ou credencial no código
+  category: security
+  severity: blocker
+  kind: pattern
+  instruction: 'Credenciais nunca ficam no código: use o cofre de segredos ou variáveis de ambiente injetadas
+    na implantação.'
+  pattern: (?i)(password|passwd|senha|secret|api[_-]?key|access[_-]?key|private[_-]?key|token|client[_-]?secret)[a-z0-9_]*['\"]?\s*[:=]\s*['\"][^'\"\s]{8,}['\"]
+  exclude_paths:
+  - '**/tests/**'
+  - '**/test/**'
+  - '**/__tests__/**'
+  - '**/*.test.*'
+  - '**/*.spec.*'
+  - '**/test_*.py'
+  - '**/*_test.py'
+  - '**/*Test.java'
+  suggestion: Remova o valor, revogue a credencial exposta e leia-a de uma variável de ambiente ou do
+    cofre.
+- code: SEC-002
+  title: Chave privada no repositório
+  category: security
+  severity: blocker
+  kind: pattern
+  instruction: Chaves privadas não podem ser versionadas.
+  pattern: '-----BEGIN (RSA |EC |OPENSSH |DSA |PGP )?PRIVATE KEY'
+  suggestion: Remova o arquivo, gere uma nova chave e guarde-a no cofre.
+- code: OPS-001
+  title: Imagem base sem versão fixa
+  category: security
+  severity: medium
+  kind: pattern
+  instruction: Use tag de versão (ou digest) na imagem base para builds reproduzíveis.
+  pattern: ^\s*FROM\s+(?!scratch\b|\$)[^\s:@]+(:latest)?(\s+AS\s+\S+)?\s*$
+  ignore_case: true
+  paths:
+  - '**/Dockerfile*'
+  - '**/*.dockerfile'
+- code: OPS-002
+  title: Container rodando como root
+  category: security
+  severity: medium
+  kind: ai
+  instruction: A imagem final define um USER sem privilégios.
+  paths:
+  - '**/Dockerfile*'
+- code: OPS-010
+  title: Action sem versão fixa
+  category: security
+  severity: low
+  kind: pattern
+  instruction: Fixe actions de terceiros por tag ou SHA.
+  pattern: uses:\s*[^@\s]+@(main|master|HEAD)\b
+  paths:
+  - .github/workflows/**
+- code: OPS-011
+  title: Segredo exposto no pipeline
+  category: security
+  severity: blocker
+  kind: ai
+  instruction: Segredos vêm de variáveis protegidas/mascaradas; nunca são impressos (echo), gravados em
+    artefatos ou passados em linha de comando visível.
+  paths:
+  - .github/workflows/**
+  - '**/.gitlab-ci.yml'
+  - '**/Jenkinsfile'
+  - '**/azure-pipelines.yml'

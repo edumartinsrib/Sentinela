@@ -1,0 +1,10 @@
+**/__pycache__
+**/.venv
+**/.pytest_cache
+**/.ruff_cache
+**/node_modules
+sentinela-console/dist
+.git
+.demo
+docs/screenshots
+tests/ui/screenshots

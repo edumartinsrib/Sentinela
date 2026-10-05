@@ -1,0 +1,38 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+dist/
+build/
+
+# Node
+node_modules/
+sentinela-console/dist/
+*.tsbuildinfo
+
+# Ambiente / segredos locais
+.env
+.env.local
+*.pem
+*.pfx
+
+# Runner
+.sentinela-runner/
+
+# Dados da demonstração (repositórios git criados pelo scripts/demo.py)
+.demo/
+
+# Editor / SO
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+
+# Prints gerados pelo teste de interface (os de referência ficam em docs/screenshots)
+tests/ui/screenshots/

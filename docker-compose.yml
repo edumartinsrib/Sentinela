@@ -1,0 +1,101 @@
+# Ambiente local completo: cada serviço é um projeto com Dockerfile próprio e lê só
+# variáveis de ambiente. Postgres e Redis fazem o papel dos recursos gerenciados.
+#
+#   docker compose up -d --build                      # API, runner e console
+#   docker compose --profile demo up -d --build       # + GitHub simulado
+#   uv run python scripts/demo.py                     # popula a demonstração
+#   console: http://localhost:8090  (modo dev: entre como admin, ana, bia ou caio)
+#
+# Para revisar com IA de verdade, exporte ANTHROPIC_API_KEY e/ou COPILOT_GITHUB_TOKEN
+# antes do `up`: o runner anuncia o Claude Code e a Copilot CLI e o admin escolhe o
+# modelo padrão em "IA e modelos". Sem chave, o simulador local (sem IA) atende.
+
+x-runner-token: &runner-token
+  # Token de registro inicial só para o ambiente local; em produção, gere pelo console.
+  SENTINELA_REGISTRATION_TOKEN: snt_reg_00000000-0000-4000-8000-000000000001.dev-runner-secret
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: sentinela
+      POSTGRES_PASSWORD: sentinela
+      POSTGRES_DB: sentinela
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U sentinela -d sentinela"]
+      interval: 5s
+      retries: 20
+
+  redis:
+    image: redis:8-alpine
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+
+  api:
+    build:
+      context: .
+      dockerfile: sentinela-api/Dockerfile
+    image: sentinela-api:dev
+    environment:
+      SENTINELA_DATABASE_URL: postgresql://sentinela:sentinela@postgres:5432/sentinela
+      SENTINELA_REDIS_URL: redis://redis:6379/0
+      SENTINELA_AUTH_MODE: dev
+      SENTINELA_BOOTSTRAP_ADMINS: admin
+      # Cofre no próprio Postgres, cifrado com AES-GCM. Chave fixa só para desenvolvimento.
+      SENTINELA_SECRET_STORE: db
+      SENTINELA_SECRET_KEY: "dev1:FO0/XslMHc1ycK8mL6D4P3GykrC0PvDlKKc7+thktmY="
+      SENTINELA_PUBLIC_URL: http://localhost:8090
+      SENTINELA_PUBLIC_API_URL: http://localhost:8000
+      SENTINELA_BOOTSTRAP_RUNNER_TOKEN: snt_reg_00000000-0000-4000-8000-000000000001.dev-runner-secret
+      SENTINELA_ENABLE_FAKE_ENGINE: ${SENTINELA_ENABLE_FAKE_ENGINE:-true}
+    depends_on:
+      postgres: {condition: service_healthy}
+      redis: {condition: service_healthy}
+    ports:
+      - "8000:8000"
+
+  runner:
+    build:
+      context: .
+      dockerfile: sentinela-runner/Dockerfile
+    image: sentinela-runner:dev
+    environment:
+      <<: *runner-token
+      SENTINELA_API_URL: http://api:8000
+      SENTINELA_RUNNER_NAME: runner-local-01
+      SENTINELA_LABELS: linux,docker
+      SENTINELA_SLOTS: "2"
+      SENTINELA_ENABLE_FAKE_ENGINE: ${SENTINELA_ENABLE_FAKE_ENGINE:-true}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      COPILOT_GITHUB_TOKEN: ${COPILOT_GITHUB_TOKEN:-}
+    volumes:
+      - runner-home:/var/lib/sentinela-runner
+    depends_on:
+      api: {condition: service_healthy}
+    restart: on-failure
+
+  console:
+    build: ./sentinela-console
+    image: sentinela-console:dev
+    environment:
+      SENTINELA_API_UPSTREAM: http://api:8000
+    depends_on: [api]
+    ports:
+      - "8090:8080"
+
+  # ------------------------------------------------------------ só na demonstração
+  fake-github:
+    profiles: [demo]
+    build:
+      context: .
+      dockerfile: scripts/Dockerfile.fake-github
+    image: sentinela-fake-github:dev
+    ports:
+      - "9000:9000"
+
+volumes:
+  pgdata:
+  runner-home:

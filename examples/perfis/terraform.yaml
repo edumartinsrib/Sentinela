@@ -1,0 +1,70 @@
+# Perfil "Infraestrutura (Terraform)" da biblioteca do Sentinela.
+# Importe em Padrões → Importar YAML e ajuste ao seu time.
+name: Infraestrutura (Terraform)
+description: Módulos e stacks Terraform.
+instructions: 'Tags obrigatórias: owner, sistema, ambiente. Recursos só via módulos internos versionados.
+  Nada público sem aprovação da segurança.'
+path_globs:
+- '**/*.tf'
+- '**/*.tfvars'
+rules:
+- code: SEC-001
+  title: Segredo ou credencial no código
+  category: security
+  severity: blocker
+  kind: pattern
+  instruction: 'Credenciais nunca ficam no código: use o cofre de segredos ou variáveis de ambiente injetadas
+    na implantação.'
+  pattern: (?i)(password|passwd|senha|secret|api[_-]?key|access[_-]?key|private[_-]?key|token|client[_-]?secret)[a-z0-9_]*['\"]?\s*[:=]\s*['\"][^'\"\s]{8,}['\"]
+  exclude_paths:
+  - '**/tests/**'
+  - '**/test/**'
+  - '**/__tests__/**'
+  - '**/*.test.*'
+  - '**/*.spec.*'
+  - '**/test_*.py'
+  - '**/*_test.py'
+  - '**/*Test.java'
+  suggestion: Remova o valor, revogue a credencial exposta e leia-a de uma variável de ambiente ou do
+    cofre.
+- code: SEC-002
+  title: Chave privada no repositório
+  category: security
+  severity: blocker
+  kind: pattern
+  instruction: Chaves privadas não podem ser versionadas.
+  pattern: '-----BEGIN (RSA |EC |OPENSSH |DSA |PGP )?PRIVATE KEY'
+  suggestion: Remova o arquivo, gere uma nova chave e guarde-a no cofre.
+- code: IAC-001
+  title: Liberação para a internet inteira
+  category: security
+  severity: high
+  kind: pattern
+  instruction: Regras de rede abertas para qualquer origem precisam de aprovação explícita da segurança.
+  pattern: 0\.0\.0\.0/0|::/0
+  paths:
+  - '**/*.tf'
+- code: IAC-002
+  title: Recurso público ou sem criptografia
+  category: security
+  severity: blocker
+  kind: ai
+  instruction: Buckets, bancos e filas não podem ser públicos e devem ter criptografia em repouso habilitada.
+  paths:
+  - '**/*.tf'
+- code: IAC-010
+  title: Tags obrigatórias
+  category: standards
+  severity: low
+  kind: ai
+  instruction: Recursos novos têm as tags de dono, sistema e ambiente definidas no contexto do perfil.
+  paths:
+  - '**/*.tf'
+- code: IAC-020
+  title: Módulo sem versão fixa
+  category: architecture
+  severity: medium
+  kind: ai
+  instruction: Módulos externos usam versão fixa (ref de tag ou version), nunca branch.
+  paths:
+  - '**/*.tf'

@@ -1,0 +1,20 @@
+[project]
+name = "sentinela-runner"
+version = "0.1.0"
+description = "Runner do Sentinela: pega revisões na fila, clona o PR e roda regras + Claude Code ou Copilot CLI"
+requires-python = ">=3.12"
+dependencies = [
+    "sentinela-core",
+    "httpx>=0.28",
+    "pydantic-settings>=2.6",
+]
+
+[project.scripts]
+sentinela-runner = "sentinela_runner.main:run"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/sentinela_runner"]

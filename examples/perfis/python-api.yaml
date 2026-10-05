@@ -1,0 +1,150 @@
+# Perfil "API Python (FastAPI)" da biblioteca do Sentinela.
+# Importe em Padrões → Importar YAML e ajuste ao seu time.
+name: API Python (FastAPI)
+description: Serviços HTTP em Python com FastAPI, SQLAlchemy e Pydantic.
+instructions: 'Arquitetura em camadas: routers/ (entrada HTTP, só validação e chamada de serviço) → services/
+  (regra de negócio) → repositories/ (acesso a dados). Configuração só por variáveis de ambiente. Logs
+  estruturados com logger por módulo.'
+path_globs:
+- '**/*.py'
+- pyproject.toml
+- requirements*.txt
+rules:
+- code: SEC-001
+  title: Segredo ou credencial no código
+  category: security
+  severity: blocker
+  kind: pattern
+  instruction: 'Credenciais nunca ficam no código: use o cofre de segredos ou variáveis de ambiente injetadas
+    na implantação.'
+  pattern: (?i)(password|passwd|senha|secret|api[_-]?key|access[_-]?key|private[_-]?key|token|client[_-]?secret)[a-z0-9_]*['\"]?\s*[:=]\s*['\"][^'\"\s]{8,}['\"]
+  exclude_paths:
+  - '**/tests/**'
+  - '**/test/**'
+  - '**/__tests__/**'
+  - '**/*.test.*'
+  - '**/*.spec.*'
+  - '**/test_*.py'
+  - '**/*_test.py'
+  - '**/*Test.java'
+  suggestion: Remova o valor, revogue a credencial exposta e leia-a de uma variável de ambiente ou do
+    cofre.
+- code: SEC-002
+  title: Chave privada no repositório
+  category: security
+  severity: blocker
+  kind: pattern
+  instruction: Chaves privadas não podem ser versionadas.
+  pattern: '-----BEGIN (RSA |EC |OPENSSH |DSA |PGP )?PRIVATE KEY'
+  suggestion: Remova o arquivo, gere uma nova chave e guarde-a no cofre.
+- code: SEC-003
+  title: Dado pessoal ou sensível em log
+  category: security
+  severity: high
+  kind: ai
+  instruction: Logs, mensagens de erro e respostas não podem expor senhas, tokens, documentos (CPF/CNPJ),
+    cartões, dados bancários ou dados pessoais completos. Verifique chamadas de log e exceções adicionadas.
+- code: SEC-004
+  title: Validação da entrada externa
+  category: security
+  severity: high
+  kind: ai
+  instruction: Todo dado vindo de fora (requisição HTTP, fila, arquivo, parâmetro de linha de comando)
+    deve ser validado por tipo, tamanho e formato antes de ser usado, com um schema explícito.
+- code: SEC-005
+  title: Consulta SQL montada com concatenação
+  category: security
+  severity: high
+  kind: ai
+  instruction: Consultas SQL/NoSQL nunca concatenam ou interpolam valores (f-string, +, format, template
+    string). Use parâmetros (bind) ou o query builder do ORM.
+- code: SEC-006
+  title: Verificação de TLS desligada
+  category: security
+  severity: high
+  kind: pattern
+  instruction: Desligar a verificação de certificado abre espaço para interceptação.
+  pattern: verify\s*=\s*False|rejectUnauthorized\s*:\s*false|InsecureSkipVerify\s*:\s*true|NODE_TLS_REJECT_UNAUTHORIZED
+  suggestion: Mantenha a verificação e configure o certificado da CA interna.
+- code: ARQ-001
+  title: Camadas respeitadas
+  category: architecture
+  severity: medium
+  kind: ai
+  instruction: 'Respeite a separação de camadas descrita no contexto do perfil: a camada de entrada (rotas,
+    controllers, handlers) não acessa banco nem clientes externos diretamente; regras de negócio ficam
+    na camada de serviço/domínio; o domínio não importa infraestrutura.'
+- code: EST-001
+  title: Responsabilidade única
+  category: structure
+  severity: low
+  kind: ai
+  instruction: Funções e classes novas devem ter uma responsabilidade clara. Aponte funções adicionadas
+    com mais de ~60 linhas ou que misturam I/O, regra de negócio e formatação.
+- code: TST-001
+  title: Mudança de comportamento com teste
+  category: tests
+  severity: medium
+  kind: ai
+  instruction: Toda regra de negócio nova ou alterada precisa de teste automatizado no mesmo PR. Aponte
+    quando o PR muda comportamento em código de produção e não adiciona nem altera testes correspondentes.
+- code: PER-001
+  title: Consulta dentro de laço (N+1)
+  category: performance
+  severity: medium
+  kind: ai
+  instruction: Evite chamadas ao banco ou a APIs dentro de laços sobre coleções; carregue em lote.
+- code: PY-001
+  title: print usado para depuração
+  category: standards
+  severity: low
+  kind: pattern
+  instruction: Use o logger do módulo em vez de print.
+  pattern: ^\s*print\(
+  paths:
+  - '**/*.py'
+  exclude_paths:
+  - '**/tests/**'
+  - '**/test/**'
+  - '**/__tests__/**'
+  - '**/*.test.*'
+  - '**/*.spec.*'
+  - '**/test_*.py'
+  - '**/*_test.py'
+  - '**/*Test.java'
+  - '**/scripts/**'
+  suggestion: logger = logging.getLogger(__name__); logger.info(...)
+- code: PY-002
+  title: Exceção genérica engolida
+  category: standards
+  severity: medium
+  kind: ai
+  instruction: Não capture Exception/BaseException (ou except sem tipo) sem relançar ou registrar com
+    contexto. Capture a exceção específica.
+  paths:
+  - '**/*.py'
+- code: PY-003
+  title: Tipagem nas funções públicas
+  category: standards
+  severity: low
+  kind: ai
+  instruction: Funções e métodos públicos adicionados devem ter anotações de tipo nos parâmetros e no
+    retorno.
+  paths:
+  - '**/*.py'
+- code: PY-010
+  title: Rota sem modelo de resposta
+  category: standards
+  severity: low
+  kind: ai
+  instruction: Rotas FastAPI novas declaram response_model (ou tipo de retorno) e usam modelos Pydantic
+    na entrada, nunca dict solto.
+  paths:
+  - '**/*.py'
+- code: DOC-001
+  title: Contrato público documentado
+  category: docs
+  severity: info
+  kind: ai
+  instruction: Endpoints, eventos ou funções públicas novos precisam de descrição (docstring, OpenAPI
+    ou README) explicando entrada, saída e erros.

@@ -1,0 +1,47 @@
+# Workspace uv do monorepo. Cada membro pode ser extraído para um repositório
+# próprio sem mudança de código.
+[tool.uv.workspace]
+members = [
+    "sentinela-core",
+    "sentinela-api",
+    "sentinela-runner",
+]
+
+[tool.uv.sources]
+sentinela-core = { workspace = true }
+
+[dependency-groups]
+dev = [
+    "pytest>=8.3",
+    "pytest-asyncio>=0.25",
+    "ruff>=0.8",
+    "asgi-lifespan>=2.1.0",
+]
+ui = [
+    "playwright>=1.57,<2",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "ASYNC"]
+ignore = ["B008", "UP046"]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "session"
+asyncio_default_test_loop_scope = "session"
+
+[tool.ruff.lint.per-file-ignores]
+"**/migrations/versions/*.py" = ["E501"]
+"**/settings.py" = ["E501"]
+"**/services/library.py" = ["E501"]
+"scripts/fake_github.py" = ["E501"]
+"scripts/demo.py" = ["E501"]
+"**/tests/*.py" = ["ASYNC", "E731"]
+"tests/**/*.py" = ["ASYNC", "E731"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["sentinela_core", "sentinela_api", "sentinela_runner"]

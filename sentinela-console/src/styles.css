@@ -1,0 +1,232 @@
+/* Ajustes do Sentinela sobre a broto-ui (sempre com os tokens --bt-*). */
+
+.snt-mono {
+  font-family: var(--bt-font-mono);
+  font-size: 0.86em;
+}
+
+.snt-muted {
+  color: var(--bt-text-2);
+}
+
+.snt-small {
+  font-size: 0.86rem;
+}
+
+.snt-sev-row {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.snt-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.snt-inline {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.snt-between {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+/* ------------------------------------------------------------ apontamentos */
+.snt-finding {
+  border: 1px solid var(--bt-border);
+  border-left: 4px solid var(--snt-sev, var(--bt-neutral-400));
+  border-radius: var(--bt-radius-box-sm);
+  background: var(--bt-white);
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.snt-finding.is-resolved {
+  background: var(--bt-surface-muted);
+  opacity: 0.85;
+}
+
+.snt-finding-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.snt-finding-title {
+  font-weight: 700;
+  color: var(--bt-neutral-900);
+  flex: 1 1 260px;
+  min-width: 0;
+}
+
+.snt-finding-loc {
+  font-family: var(--bt-font-mono);
+  font-size: 0.82rem;
+  color: var(--bt-text-2);
+  word-break: break-all;
+}
+
+.snt-finding p {
+  margin: 0;
+}
+
+.snt-evidence {
+  font-family: var(--bt-font-mono);
+  font-size: 0.82rem;
+  background: var(--bt-surface-muted);
+  border: 1px solid var(--bt-border);
+  border-radius: 6px;
+  padding: 6px 10px;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.snt-suggestion {
+  background: var(--bt-green-50);
+  border-radius: var(--bt-radius-box-xs);
+  padding: 8px 12px;
+  font-size: 0.92rem;
+}
+
+.snt-events {
+  border-top: 1px dashed var(--bt-neutral-300);
+  padding-top: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 0.88rem;
+}
+
+.snt-gate-summary {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 12px;
+}
+
+.snt-gate-summary .snt-figure {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.snt-figure-value {
+  font-family: var(--bt-font-display);
+  font-style: italic;
+  font-weight: 700;
+  font-size: 1.6rem;
+  color: var(--bt-green-900);
+  line-height: 1.1;
+}
+
+.snt-figure-label {
+  font-size: 0.82rem;
+  color: var(--bt-text-2);
+}
+
+.snt-check {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--bt-neutral-300);
+}
+
+.snt-check:last-child {
+  border-bottom: 0;
+}
+
+.snt-check-ok {
+  color: var(--bt-green-700);
+}
+
+.snt-check-fail {
+  color: var(--bt-red-700);
+}
+
+.snt-check-warn {
+  color: var(--bt-yellow-600);
+}
+
+.snt-rule-instruction {
+  white-space: pre-wrap;
+  color: var(--bt-text-2);
+  font-size: 0.9rem;
+}
+
+.snt-profile-card {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  height: 100%;
+}
+
+.snt-profile-card .snt-grow {
+  flex: 1;
+}
+
+.snt-template {
+  text-align: left;
+  border: 1px solid var(--bt-border);
+  border-radius: var(--bt-radius-box-sm);
+  background: var(--bt-white);
+  padding: 12px 14px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font: inherit;
+  color: inherit;
+}
+
+.snt-template[aria-pressed='true'] {
+  border-color: var(--bt-green-600);
+  box-shadow: 0 0 0 2px var(--bt-green-100);
+}
+
+.snt-template:focus-visible {
+  outline: 2px solid var(--bt-green-600);
+  outline-offset: 2px;
+}
+
+.snt-templates {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 10px;
+}
+
+.snt-diff-path {
+  font-family: var(--bt-font-mono);
+  font-size: 0.84rem;
+}
+
+@media (max-width: 640px) {
+  .snt-finding {
+    padding: 12px;
+  }
+}
+
+/* Auditoria: antes/depois lado a lado, sem alargar a tabela */
+.snt-audit-change {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 12px;
+  padding: 4px 0 8px;
+  min-width: 0;
+}
+.snt-audit-change > div {
+  min-width: 0;
+  overflow: auto;
+  max-height: 320px;
+}
